@@ -82,3 +82,8 @@ export function getMovies(): Promise<{ movies: Movie[] }> {
 export function getTheatres(movieId: string): Promise<{ theatres: Theatre[] }> {
   return get(`/api/theatres?movieId=${encodeURIComponent(movieId)}`);
 }
+
+/** Submit an authorized booking without transmitting payment-instrument details. */
+export function createBooking(token: string, input: { movieId: string; theatreId: string; seats: string[]; totalPrice: number; paymentMethod: 'CARD' | 'UPI' }): Promise<{ confirmationId: string; movie: Movie; theatre: Theatre; seats: string[]; totalPrice: number; paymentMethod: 'CARD' | 'UPI' }> {
+  return request('/api/bookings', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(input) });
+}

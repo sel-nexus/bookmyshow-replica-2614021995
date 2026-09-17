@@ -10,7 +10,9 @@ export const requireAuth: RequestHandler = (request, response, next): void => {
     return;
   }
   try {
-    jwt.verify(token, config.jwtSecret, { issuer: config.jwtIssuer });
+    const claims = jwt.verify(token, config.jwtSecret, { issuer: config.jwtIssuer });
+    if (typeof claims === 'string' || typeof claims.sub !== 'string') throw new Error('JWT subject is missing.');
+    response.locals.authUserId = claims.sub;
     next();
   } catch {
     response.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication is required.', requestId: response.locals.requestId } });
