@@ -1,17 +1,18 @@
 FROM node:20-bookworm-slim AS build
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
-RUN node node_modules/typescript/bin/tsc
+COPY migrations ./migrations
+RUN node node_modules/typescript/bin/tsc && npm prune --omit=dev && npm cache clean --force
 
 FROM node:20-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-COPY migrations ./migrations
+COPY --from=build /app/migrations ./migrations
 EXPOSE 4000
 CMD ["node", "dist/server.js"]
