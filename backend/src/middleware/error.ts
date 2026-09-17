@@ -10,8 +10,12 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, _ne
     return;
   }
   if (error instanceof AuthError) {
-    response.status(401).json({ error: { code: error.code, message: error.message, requestId } });
+    response.status(401).json({ error: { code: error.code, message: error.message, requestId, details: [] } });
     return;
   }
-  response.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.', requestId } });
+  if (typeof error === 'object' && error !== null && 'type' in error && error.type === 'entity.too.large') {
+    response.status(413).json({ error: { code: 'PAYLOAD_TOO_LARGE', message: 'Request payload exceeds 16 KB.', requestId, details: [] } });
+    return;
+  }
+  response.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.', requestId, details: [] } });
 };

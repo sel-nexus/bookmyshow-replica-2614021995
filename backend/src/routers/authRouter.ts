@@ -2,9 +2,9 @@ import { Router, type NextFunction, type Request, type Response } from 'express'
 import { z } from 'zod';
 import type { AuthService } from '../services/authService';
 
-const mobileSchema = z.string().regex(/^\d{10,15}$/, 'Mobile number must contain 10 to 15 digits.');
-const loginSchema = z.object({ mobile: mobileSchema });
-const verifySchema = z.object({ mobile: mobileSchema, otp: z.string().regex(/^\d{4}$/, 'OTP must contain exactly 4 digits.') });
+const mobileSchema = z.string().trim().regex(/^\d{10,15}$/, 'mobile must be 10 to 15 digits');
+const loginSchema = z.object({ mobile: mobileSchema }).strict();
+const verifySchema = z.object({ mobile: mobileSchema, otp: z.string().regex(/^\d{4}$/, 'otp must contain exactly 4 digits') }).strict();
 
 /** Create HTTP routes for requesting and verifying a mobile OTP. */
 export function createAuthRouter(authService: AuthService): Router {
@@ -12,7 +12,7 @@ export function createAuthRouter(authService: AuthService): Router {
   router.post('/login', (request: Request, response: Response, next: NextFunction): void => {
     try {
       const input = loginSchema.parse(request.body);
-      response.status(200).json({ data: authService.requestLogin(input.mobile.trim()) });
+      response.status(200).json({ data: authService.requestLogin(input.mobile) });
     } catch (error: unknown) {
       next(error);
     }

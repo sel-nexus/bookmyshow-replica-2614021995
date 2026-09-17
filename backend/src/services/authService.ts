@@ -16,19 +16,19 @@ export class AuthService {
   /** Initialize the service with its persistence dependency. */
   public constructor(private readonly users: SqliteUserRepository) {}
 
-  /** Return the login acknowledgement without persisting authentication state. */
-  public requestLogin(mobile: string): { mobile: string; nextStep: 'VERIFY_OTP'; message: string } {
-    return { mobile, nextStep: 'VERIFY_OTP', message: demoPolicy.acknowledgement };
+  /** Return the LLD-defined login acknowledgement without persisting authentication state. */
+  public requestLogin(mobile: string): { mobile: string; nextStep: 'VERIFY_OTP'; message: 'Demo OTP login initiated' } {
+    return { mobile, nextStep: 'VERIFY_OTP', message: 'Demo OTP login initiated' };
   }
 
-  /** Verify an OTP, persist the user only after success, and sign a token. */
-  public verifyOtp(mobile: string, otp: string): { user: UserRecord; token: string } {
-    if (!isValidDemoOtp(otp)) throw new AuthError('INVALID_OTP', 'The verification code is invalid.');
+  /** Verify an OTP, persist the user only after success, and issue the LLD-defined token response. */
+  public verifyOtp(mobile: string, otp: string): { token: string; tokenType: 'Bearer'; expiresIn: 1800; user: Pick<UserRecord, 'id' | 'mobile'> } {
+    if (!isValidDemoOtp(otp)) throw new AuthError('INVALID_OTP', 'The demo OTP is invalid.');
     const user = this.users.createOrFindByMobile(mobile);
     const token = jwt.sign({ sub: user.id, mobile: user.mobile }, config.jwtSecret, {
       issuer: config.jwtIssuer,
       expiresIn: demoPolicy.tokenLifetime,
     });
-    return { user, token };
+    return { token, tokenType: 'Bearer', expiresIn: 1800, user: { id: user.id, mobile: user.mobile } };
   }
 }

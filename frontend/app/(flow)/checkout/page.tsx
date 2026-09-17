@@ -20,12 +20,32 @@ function CheckoutFlow(): ReactElement {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canCheckout = Boolean(user && token && movie && theatre);
 
-  useEffect(() => (): void => { if (timer.current) clearTimeout(timer.current); cancel(); }, [cancel]);
-  useEffect((): void => { if (!canCheckout) router.replace('/dashboard'); }, [canCheckout, router]);
-  if (!canCheckout || !movie || !theatre || !token) return <AppShell><p role="status">Returning to dashboard…</p></AppShell>;
+  useEffect(
+    () => (): void => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+      cancel();
+    },
+    [cancel],
+  );
+  useEffect((): void => {
+    if (!canCheckout) {
+      router.replace('/dashboard');
+    }
+  }, [canCheckout, router]);
+  if (!canCheckout || !movie || !theatre || !token) {
+    return (
+      <AppShell>
+        <p role="status">Returning to dashboard…</p>
+      </AppShell>
+    );
+  }
 
   function pay(): void {
-    if (processing || !token || !movie || !theatre || !paymentMethod || seats.length === 0) return;
+    if (processing || !token || !movie || !theatre || !paymentMethod || seats.length === 0) {
+      return;
+    }
     const bookingToken = token;
     const movieId = movie.id;
     const theatreId = theatre.id;
@@ -43,10 +63,70 @@ function CheckoutFlow(): ReactElement {
     }, 2000);
   }
 
-  return <AppShell><section className="auth-stage checkout-stage" aria-labelledby="checkout-title"><p className="eyebrow">CHECKOUT</p><h1 id="checkout-title">Confirm the big-screen plan.</h1><p>{movie.title} at {theatre.name}</p><button className="secondary-button" type="button" onClick={applyPreset} disabled={processing}>Select Seats</button><SeatGrid seats={seats} /><p className="booking-total">Total: ₹{totalPrice}</p><PaymentForm method={paymentMethod} onChoose={choosePayment} disabled={processing} />{error && <p role="alert" className="form-error">{error}</p>}{confirmation ? <p role="status">Booking confirmed: {confirmation.confirmationId}</p> : <button className="checkout-button" type="button" onClick={pay} disabled={processing || !paymentMethod || seats.length === 0}>{processing ? 'Processing Payment...' : 'Pay ₹450'}</button>}<button className="text-button" type="button" disabled={processing} onClick={(): void => { reset(); router.push('/dashboard'); }}>Cancel checkout</button><Link className="text-link" href="/dashboard">Back to shows</Link></section></AppShell>;
+  return (
+    <AppShell>
+      <section className="auth-stage checkout-stage" aria-labelledby="checkout-title">
+        <p className="eyebrow">CHECKOUT</p>
+        <h1 id="checkout-title">Confirm the big-screen plan.</h1>
+        <p>
+          {movie.title} at {theatre.name}
+        </p>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={applyPreset}
+          disabled={processing}
+        >
+          Select Seats
+        </button>
+        <SeatGrid seats={seats} />
+        <p className="booking-total">Total: ₹{totalPrice}</p>
+        <PaymentForm
+          method={paymentMethod}
+          onChoose={choosePayment}
+          disabled={processing}
+        />
+        {error && (
+          <p role="alert" className="form-error">
+            {error}
+          </p>
+        )}
+        {confirmation ? (
+          <p role="status">Booking confirmed: {confirmation.confirmationId}</p>
+        ) : (
+          <button
+            className="checkout-button"
+            type="button"
+            onClick={pay}
+            disabled={processing || !paymentMethod || seats.length === 0}
+          >
+            {processing ? 'Processing Payment...' : 'Pay ₹450'}
+          </button>
+        )}
+        <button
+          className="text-button"
+          type="button"
+          disabled={processing}
+          onClick={(): void => {
+            reset();
+            router.push('/dashboard');
+          }}
+        >
+          Cancel checkout
+        </button>
+        <Link className="text-link" href="/dashboard">
+          Back to shows
+        </Link>
+      </section>
+    </AppShell>
+  );
 }
 
 /** Provide transient selection state to the protected checkout route. */
 export default function CheckoutPage(): ReactElement {
-  return <CheckoutProvider><CheckoutFlow /></CheckoutProvider>;
+  return (
+    <CheckoutProvider>
+      <CheckoutFlow />
+    </CheckoutProvider>
+  );
 }
