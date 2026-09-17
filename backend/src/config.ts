@@ -5,6 +5,7 @@ import { z } from 'zod';
 dotenv.config();
 
 const environmentSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
   DATABASE_PATH: z.string().min(1).default('./data/bookmyshow.db'),
   JWT_SECRET: z.string().min(16).default('dev-secret-change-in-production'),
@@ -12,7 +13,14 @@ const environmentSchema = z.object({
   CORS_ORIGIN: z.string().url().default('http://localhost:3000'),
 });
 
-const values = environmentSchema.parse(process.env);
+const values = environmentSchema.parse({
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
+  DATABASE_PATH: process.env.DATABASE_PATH,
+  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_ISSUER: process.env.JWT_ISSUER,
+  CORS_ORIGIN: process.env.CORS_ORIGIN,
+});
 
 /** Provide validated configuration for application startup. */
 export const config = {
