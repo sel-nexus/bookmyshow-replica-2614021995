@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  mobile TEXT NOT NULL UNIQUE,
+  created_at TEXT NOT NULL
+);
