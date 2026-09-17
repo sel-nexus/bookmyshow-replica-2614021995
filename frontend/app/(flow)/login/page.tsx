@@ -17,5 +17,17 @@ export default function LoginPage(): ReactElement {
     setPendingMobile(mobile);
     router.push('/otp');
   }
-  return <AppShell><section className="auth-stage"><p className="eyebrow">WELCOME BACK</p><h1>Your seat starts with a number.</h1><p>We’ll send a short verification code to continue.</p><AuthForm mode="mobile" onSubmit={submitMobile} /><p className="demo-note">Demo code: <strong>1234</strong></p></section></AppShell>;
+  return (
+    <AppShell>
+      <section className="auth-stage">
+        <p className="eyebrow">WELCOME BACK</p>
+        <h1>Your seat starts with a number.</h1>
+        <p>We’ll send a short verification code to continue.</p>
+        <AuthForm mode="mobile" onSubmit={submitMobile} />
+        <p className="demo-note">
+          Demo code: <strong>1234</strong>
+        </p>
+      </section>
+    </AppShell>
+  );
 }

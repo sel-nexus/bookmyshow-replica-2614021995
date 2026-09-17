@@ -14,5 +14,11 @@ export const metadata: Metadata = {
 
 /** Supply global typography, styling, and in-memory authentication context. */
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>): ReactElement {
-  return <html lang="en" className={`${display.variable} ${text.variable}`}><body><AuthProvider>{children}</AuthProvider></body></html>;
+  return (
+    <html lang="en" className={`${display.variable} ${text.variable}`}>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
+    </html>
+  );
 }

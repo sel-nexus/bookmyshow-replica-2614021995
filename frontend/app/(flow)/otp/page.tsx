@@ -18,6 +18,29 @@ export default function OtpPage(): ReactElement {
     completeAuthentication(result.user, result.token);
     router.push('/dashboard');
   }
-  if (!mobile) return <AppShell><section className="auth-stage"><p className="eyebrow">ONE MORE STEP</p><h1>Start with your mobile number.</h1><p>We need a number before we can verify a code.</p><Link className="text-link" href="/login">Return to login</Link></section></AppShell>;
-  return <AppShell><section className="auth-stage"><p className="eyebrow">CHECK YOUR PHONE</p><h1>Enter the code, then take your seat.</h1><p>For this demo, use the code shown on the previous screen.</p><AuthForm mode="otp" mobile={mobile} onSubmit={submitOtp} /></section></AppShell>;
+  if (!mobile) {
+    return (
+      <AppShell>
+        <section className="auth-stage">
+          <p className="eyebrow">ONE MORE STEP</p>
+          <h1>Start with your mobile number.</h1>
+          <p>We need a number before we can verify a code.</p>
+          <Link className="text-link" href="/login">
+            Return to login
+          </Link>
+        </section>
+      </AppShell>
+    );
+  }
+
+  return (
+    <AppShell>
+      <section className="auth-stage">
+        <p className="eyebrow">CHECK YOUR PHONE</p>
+        <h1>Enter the code, then take your seat.</h1>
+        <p>For this demo, use the code shown on the previous screen.</p>
+        <AuthForm mode="otp" mobile={mobile} onSubmit={submitOtp} />
+      </section>
+    </AppShell>
+  );
 }
