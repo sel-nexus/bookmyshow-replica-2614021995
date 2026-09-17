@@ -35,7 +35,8 @@ function CheckoutFlow(): ReactElement {
     setProcessing(true);
     timer.current = setTimeout((): void => {
       void createBooking(bookingToken, { movieId, theatreId, seats, totalPrice, paymentMethod: selectedPaymentMethod }).then((result) => {
-        setConfirmation({ confirmationId: result.confirmationId });
+        setConfirmation(result);
+        router.push('/confirmation');
       }).catch((requestError: unknown) => {
         setError(requestError instanceof Error ? requestError.message : 'Unable to complete your booking.');
       }).finally(() => { setProcessing(false); timer.current = null; });

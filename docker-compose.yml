@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    environment:
+      PORT: "4000"
+      DATABASE_PATH: /data/bookmyshow.db
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      JWT_ISSUER: ${JWT_ISSUER:-bookmyshow-replica}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    ports:
+      - "4000:4000"
+    volumes:
+      - backend-data:/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      API_PROXY_TARGET: http://backend:4000
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+volumes:
+  backend-data:

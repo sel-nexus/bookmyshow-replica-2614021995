@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useMemo, useState, type ReactElement, type ReactNode } from 'react';
-import type { Movie, Theatre } from './api';
+import type { BookingConfirmation, Movie, Theatre } from './api';
 
 export type PaymentMethod = 'CARD' | 'UPI';
 
@@ -11,7 +11,7 @@ interface CheckoutContextValue {
   seats: string[];
   totalPrice: number;
   paymentMethod: PaymentMethod | null;
-  confirmation: { confirmationId: string } | null;
+  confirmation: BookingConfirmation | null;
   chooseMovie: (movie: Movie) => void;
   chooseTheatre: (theatre: Theatre) => void;
   applyPreset: () => void;
@@ -19,7 +19,7 @@ interface CheckoutContextValue {
   beginPay: () => void;
   reset: () => void;
   cancel: () => void;
-  setConfirmation: (confirmation: { confirmationId: string } | null) => void;
+  setConfirmation: (confirmation: BookingConfirmation | null) => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextValue | null>(null);
@@ -32,7 +32,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }): ReactEl
   const [seats, setSeats] = useState<string[]>(snapshot.seats);
   const [totalPrice, setTotalPrice] = useState(snapshot.totalPrice);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(snapshot.paymentMethod);
-  const [confirmation, setConfirmationState] = useState<{ confirmationId: string } | null>(snapshot.confirmation);
+  const [confirmation, setConfirmationState] = useState<BookingConfirmation | null>(snapshot.confirmation);
   const value = useMemo(() => ({
     movie, theatre, seats, totalPrice, paymentMethod, confirmation,
     chooseMovie: (nextMovie: Movie): void => { snapshot = { movie: nextMovie, theatre: null, seats: [], totalPrice: 0, paymentMethod: null, confirmation: null }; setMovie(nextMovie); setTheatre(null); setSeats([]); setTotalPrice(0); setPaymentMethod(null); setConfirmationState(null); },
@@ -42,7 +42,7 @@ export function CheckoutProvider({ children }: { children: ReactNode }): ReactEl
     beginPay: (): void => undefined,
     reset: (): void => { snapshot = { movie: null, theatre: null, seats: [], totalPrice: 0, paymentMethod: null, confirmation: null }; setMovie(null); setTheatre(null); setSeats([]); setTotalPrice(0); setPaymentMethod(null); setConfirmationState(null); },
     cancel: (): void => undefined,
-    setConfirmation: (nextConfirmation: { confirmationId: string } | null): void => { snapshot = { ...snapshot, confirmation: nextConfirmation }; setConfirmationState(nextConfirmation); },
+    setConfirmation: (nextConfirmation: BookingConfirmation | null): void => { snapshot = { ...snapshot, confirmation: nextConfirmation }; setConfirmationState(nextConfirmation); },
   }), [movie, theatre, seats, totalPrice, paymentMethod, confirmation]);
   return <CheckoutContext.Provider value={value}>{children}</CheckoutContext.Provider>;
 }
