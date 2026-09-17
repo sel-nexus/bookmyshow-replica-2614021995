@@ -8,6 +8,18 @@ export interface UserRecord {
   createdAt: string;
 }
 
+/** Describe a catalog movie returned from persistence. */
+export interface MovieRecord {
+  id: string;
+  title: string;
+}
+
+/** Describe a theatre returned from persistence. */
+export interface TheatreRecord {
+  id: string;
+  name: string;
+}
+
 /** Persist and retrieve users by mobile number using SQLite. */
 export class SqliteUserRepository {
   /** Initialize the repository with an already migrated SQLite connection. */
@@ -26,5 +38,15 @@ export class SqliteUserRepository {
     const user: UserRecord = { id: randomUUID(), mobile, createdAt: new Date().toISOString() };
     this.database.prepare('INSERT INTO users (id, mobile, created_at) VALUES (?, ?, ?)').run(user.id, user.mobile, user.createdAt);
     return user;
+  }
+
+  /** List movies in their stable seeded order. */
+  public listMovies(): MovieRecord[] {
+    return this.database.prepare('SELECT id, title FROM movies ORDER BY rowid').all() as MovieRecord[];
+  }
+
+  /** List theatres mapped to a movie in their stable seeded order. */
+  public listTheatresForMovie(movieId: string): TheatreRecord[] {
+    return this.database.prepare('SELECT theatres.id, theatres.name FROM theatres INNER JOIN movie_theatres ON movie_theatres.theatre_id = theatres.id WHERE movie_theatres.movie_id = ? ORDER BY theatres.rowid').all(movieId) as TheatreRecord[];
   }
 }

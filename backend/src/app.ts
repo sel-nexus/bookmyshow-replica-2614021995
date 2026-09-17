@@ -3,17 +3,23 @@ import express, { type Application, type Request, type Response } from 'express'
 import type Database from 'better-sqlite3';
 import { config } from './config';
 import { createDatabase } from './db/database';
+import { seedCatalog } from './db/seed';
 import { errorHandler } from './middleware/error';
 import { requestContext } from './middleware/requestContext';
 import { SqliteUserRepository } from './repositories/sqliteRepository';
 import { createAuthRouter } from './routers/authRouter';
+import { createCatalogRouter } from './routers/catalogRouter';
 import { AuthService } from './services/authService';
+import { CatalogService } from './services/catalogService';
 
 /** Assemble the HTTP API around a migrated SQLite connection. */
 export function createApp(connection?: Database.Database): Application {
   const app = express();
   const activeConnection = connection ?? createDatabase();
-  const authService = new AuthService(new SqliteUserRepository(activeConnection));
+  seedCatalog(activeConnection);
+  const repository = new SqliteUserRepository(activeConnection);
+  const authService = new AuthService(repository);
+  const catalogService = new CatalogService(repository);
   app.use(cors({ origin: config.corsOrigin }));
   app.use(requestContext);
   app.use(express.json({ limit: '16kb' }));
@@ -21,6 +27,7 @@ export function createApp(connection?: Database.Database): Application {
     response.status(200).json({ data: { status: 'ok' } });
   });
   app.use('/api/auth', createAuthRouter(authService));
+  app.use('/api', createCatalogRouter(catalogService));
   app.use(errorHandler);
   return app;
 }

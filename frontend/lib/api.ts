@@ -4,6 +4,18 @@ export interface AuthUser {
   createdAt: string;
 }
 
+/** Describe a movie available for theatre selection. */
+export interface Movie {
+  id: string;
+  title: string;
+}
+
+/** Describe a theatre mapped to a selected movie. */
+export interface Theatre {
+  id: string;
+  name: string;
+}
+
 interface ApiErrorEnvelope {
   error: { code: string; message: string; requestId?: string };
 }
@@ -28,11 +40,10 @@ function createRequestId(): string {
 }
 
 /** Submit a typed JSON request and unwrap the standard API envelope. */
-async function post<T>(path: string, payload: unknown): Promise<T> {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Request-Id': createRequestId() },
-    body: JSON.stringify(payload),
+    ...init,
+    headers: { 'X-Request-Id': createRequestId(), ...init?.headers },
   });
   const body = (await response.json()) as ApiDataEnvelope<T> | ApiErrorEnvelope;
   if (!response.ok || 'error' in body) {
@@ -40,6 +51,16 @@ async function post<T>(path: string, payload: unknown): Promise<T> {
     throw new ApiError(error.code, error.message);
   }
   return body.data;
+}
+
+/** Submit a typed JSON request and unwrap the standard API envelope. */
+async function post<T>(path: string, payload: unknown): Promise<T> {
+  return request<T>(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+}
+
+/** Fetch a typed API response and unwrap the standard data envelope. */
+async function get<T>(path: string): Promise<T> {
+  return request<T>(path);
 }
 
 /** Request the demo OTP acknowledgement for a valid mobile number. */
@@ -50,4 +71,14 @@ export function requestLogin(mobile: string): Promise<{ mobile: string; nextStep
 /** Verify an OTP and receive a persisted user plus bearer token. */
 export function verifyOtp(mobile: string, otp: string): Promise<{ user: AuthUser; token: string }> {
   return post('/api/auth/verify', { mobile, otp });
+}
+
+/** Fetch the movies available in the seeded catalog. */
+export function getMovies(): Promise<{ movies: Movie[] }> {
+  return get('/api/movies');
+}
+
+/** Fetch theatres that screen the requested movie. */
+export function getTheatres(movieId: string): Promise<{ theatres: Theatre[] }> {
+  return get(`/api/theatres?movieId=${encodeURIComponent(movieId)}`);
 }
