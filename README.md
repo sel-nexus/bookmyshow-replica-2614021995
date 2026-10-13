@@ -75,7 +75,7 @@ cd frontend && NODE_ENV=production node node_modules/next/dist/bin/next build
 cd backend && node node_modules/typescript/bin/tsc
 ```
 
-The Playwright confirmation journey spec is at `frontend/e2e/confirmation.spec.ts`; run it with your live frontend and backend using the project Playwright configuration when available.
+Run all browser journeys from `frontend/` with `CI=1 NEXT_TELEMETRY_DISABLED=1 node node_modules/@playwright/test/cli.js test --reporter=html`. The configuration starts both real servers. CI disables server reuse, ensuring the Dark empty-state fixture only touches its disposable `/tmp/bookmyshow-playwright.db`; do not run against a shared live database. Use the HTML report for screenshot, ARIA, rendered HTML and computed-style attachments. The Dark loading test uses Chromium CDP latency, not mocked API responses. In sandbox environments where telemetry writes fail with EPERM fsync, use `NEXT_TELEMETRY_DISABLED=1 npm run build`.
 
 ## Containers
 
@@ -87,4 +87,4 @@ docker compose up --build
 
 The frontend is published on port 3000 and the backend on port 4000. Compose provisions no database service: SQLite is the embedded declared database. The backend database is mounted at `/data/bookmyshow.db` through the named `backend-data` volume. Preserve that named volume during routine container replacement; removing it (for example, `docker compose down -v`) permanently removes the durable SQLite data.
 
-The compose frontend build/runtime uses `NEXT_PUBLIC_API_BASE_URL=http://backend:4000` only for the container topology. Do not ship a browser `localhost` API base URL for that topology.
+Compose uses server-side `API_PROXY_TARGET=http://backend:4000`; browser requests remain same-origin through Next's `/api` proxy. Do not ship a browser `localhost` API base URL for that topology.

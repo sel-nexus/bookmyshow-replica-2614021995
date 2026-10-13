@@ -17,11 +17,13 @@
 - `frontend/app/layout.tsx`: root provider and blocking bootstrap integration.
 - `frontend/app/globals.css`: semantic Dark palette and existing control-state coverage.
 - `frontend/__tests__/theme.test.tsx`: preference/bootstrap/provider/selector regression tests.
-- `frontend/e2e/theme.spec.ts`: real-server booking, persistence, keyboard, mobile and preflight evidence specs.
+- `frontend/e2e/theme.spec.ts`: real-server booking, persistence, keyboard, mobile, loading/empty/invalid-OTP recovery and preflight evidence specs.
+- `frontend/e2e/theme-fixtures.ts`: disposable SQLite empty-state fixture with exact restoration and genuine HTTP transport latency.
 - `README.md`: appearance usage, behavior and exact test commands.
 - `CHANGELOG.md`: feature and compatibility notes.
 
 ### Compatibility
 - Breaking changes: none.
 - Migration: none. No backend, schema or dependency changes.
-- Third-party font delivery is not theme-controlled. Visual acceptance and browser/build verification remain release responsibilities.
+- Third-party font delivery is not theme-controlled. Automated unit/API/integration/browser and production/container builds were verified; visual acceptance by a product/design authority remains pending (RG-06).
+- Unchanged legacy proxy/auth/transaction test gaps and request-lifecycle races are disclosed in the implementation plan; this appearance-only revision does not claim to repair them.
